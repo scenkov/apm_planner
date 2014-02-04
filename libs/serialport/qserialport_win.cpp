@@ -258,10 +258,16 @@ bool QSerialPortPrivate::open(QIODevice::OpenMode mode)
 
     //currentDcb = restoredDcb;
     BuildCommDCB(L"baud=115200 parity=N data=8 stop=1",&currentDcb);
+    COMMCONFIG Win_CommConfig;
+    Win_CommConfig.dwSize = sizeof(COMMCONFIG);;
+    Win_CommConfig.dcb = currentDcb;
 
     QLOG_DEBUG() << "QSerialPortPrivate::open() SetCommState";
-    if (!updateDcb())
-        return false;
+    SetCommConfig(descriptor, &Win_CommConfig, sizeof(COMMCONFIG));
+
+
+    //if (!updateDcb())
+    //    return false;
     QLOG_DEBUG() << "QSerialPortPrivate::open() GetCommTimeouts";
     if (!::GetCommTimeouts(descriptor, &restoredCommTimeouts)) {
         q_ptr->setError(decodeSystemError());
